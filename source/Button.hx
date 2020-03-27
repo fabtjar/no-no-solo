@@ -14,7 +14,7 @@ class Button extends FlxSprite {
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (block.visible == isPressed) {
+		if (block != null && block.visible == isPressed) {
 			block.visible = !isPressed;
 			block.allowCollisions = isPressed ? FlxObject.NONE : FlxObject.ANY;
 		}

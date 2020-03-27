@@ -11,7 +11,7 @@ import flixel.FlxState;
 class PlayState extends FlxState {
 	var players:FlxTypedGroup<Player>;
 	var buttons:FlxTypedGroup<Button>;
-	var blocks:FlxTypedGroup<FlxSprite>;
+	var blocks:FlxTypedGroup<Block>;
 
 	var map:FlxOgmo3Loader;
 	var walls:FlxTilemap;
@@ -24,23 +24,22 @@ class PlayState extends FlxState {
 		walls.setTileProperties(1, FlxObject.ANY);
 		add(walls);
 
-		blocks = new FlxTypedGroup<FlxSprite>();
-		blocks.add(new FlxSprite(16 * 15, 16 * 2, "assets/images/block.png"));
-		blocks.forEach(b -> b.immovable = true);
+		blocks = new FlxTypedGroup<Block>();
 		add(blocks);
 
 		buttons = new FlxTypedGroup<Button>();
-		buttons.add(new Button(16 * 8, 16 * 2, blocks.getFirstAlive()));
 		add(buttons);
 
 		players = new FlxTypedGroup<Player>(2);
 		add(players);
 
 		map.loadEntities(data -> {
-			if (data.name == "player_1") {
-				players.add(new Player(data.x, data.y, 1));
-			} else if(data.name == "player_2") {
-				players.add(new Player(data.x, data.y, 2));
+			switch (data.name) {
+				case "player_1": players.add(new Player(data.x, data.y, 1));
+				case "player_2": players.add(new Player(data.x, data.y, 2));
+				case "button": buttons.add(new Button(data.x, data.y));
+				case "block": blocks.add(new Block(data.x, data.y));
+				case _:
 			}
 		});
 
