@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxPoint;
 import flixel.FlxObject;
 import flixel.tile.FlxTilemap;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
@@ -33,17 +34,50 @@ class PlayState extends FlxState {
 		players = new FlxTypedGroup<Player>(2);
 		add(players);
 
+		var blockNodes = new Map<Block, Array<FlxPoint>>();
+
 		map.loadEntities(data -> {
 			switch (data.name) {
 				case "player_1": players.add(new Player(data.x, data.y, 1));
 				case "player_2": players.add(new Player(data.x, data.y, 2));
 				case "button": buttons.add(new Button(data.x, data.y));
-				case "block": blocks.add(new Block(data.x, data.y));
+				case "block":
+					var block = new Block(data.x, data.y);
+					blocks.add(block);
+					blockNodes[block] = convertNodeToPoints(data.nodes);
 				case _:
 			}
 		});
 
+		setBlocksToButtons(blockNodes);
+
 		super.create();
+	}
+
+	function convertNodeToPoints(nodes:Array<{x:Float, y:Float}>):Array<FlxPoint> {
+		var points = new Array<FlxPoint>();
+
+		// Add 8 for middle of 16px grid
+		for(node in nodes) points.push(new FlxPoint(node.x + 8, node.y + 8));
+
+		return points;
+	}
+
+	function setBlocksToButtons(blockNodes:Map<Block, Array<FlxPoint>>):Void {
+		/**
+			Set blocks to buttons.
+			Loop through button points on blocks to see if a button overlaps with it.
+			If it does set it to the button's block.
+		**/
+		for (block => buttonPoints in blockNodes) {
+			for (buttonPoint in buttonPoints) {
+				buttons.forEach(button -> {
+					if (button.overlapsPoint(buttonPoint)) {
+						button.block = block;
+					}
+				});
+			}
+		}
 	}
 
 	override public function update(elapsed:Float):Void {
