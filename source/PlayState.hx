@@ -9,18 +9,17 @@ import flixel.FlxState;
 class PlayState extends FlxState {
 	var players = new FlxTypedGroup<Player>(2);
 	var button:Button;
-	var _block:FlxSprite;
-	var _buttonBlock:FlxSprite;
+	var block:FlxSprite;
 
 	override public function create():Void {
 		bgColor = FlxColor.GRAY;
 
-		_block = new FlxSprite(70, 50);
-		_block.loadGraphic(AssetPaths.block__png);
-		_block.immovable = true;
-		add(_block);
+		block = new FlxSprite(70, 50);
+		block.loadGraphic(AssetPaths.block__png);
+		block.immovable = true;
+		add(block);
 
-		button = new Button(50, 90, _block);
+		button = new Button(50, 90, block);
 		button.loadGraphic(AssetPaths.button__png);
 		button.setSize(8, 8);
 		button.centerOffsets(false);
@@ -36,7 +35,7 @@ class PlayState extends FlxState {
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
-		FlxG.collide(players, _block);
+		FlxG.collide(players, block);
 
 		FlxG.overlap(players, button, (p, b) -> p.touchButton(b));
 	}
