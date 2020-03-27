@@ -1,5 +1,6 @@
 package;
 
+import flixel.text.FlxText;
 import flixel.math.FlxPoint;
 import flixel.FlxObject;
 import flixel.tile.FlxTilemap;
@@ -19,6 +20,8 @@ class PlayState extends FlxState {
 
 	override public function create():Void {
 		bgColor = 0xff2d2d2d;
+
+		add(new FlxText(16, 16, "P1: Arrows, P2: WASD"));
 
 		map = new FlxOgmo3Loader("assets/data/no_no_solo.ogmo", "assets/data/level_1.json");
 		walls = map.loadTilemap("assets/images/tiles.png", "walls");
