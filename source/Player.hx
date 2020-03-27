@@ -1,3 +1,4 @@
+import flixel.input.keyboard.FlxKey;
 import flixel.FlxObject;
 import flixel.math.FlxVector;
 import flixel.math.FlxPoint;
@@ -5,13 +6,32 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 
 class Player extends FlxSprite {
-    public var speed:Float = 200;
-    public var button:FlxSprite;
+	public var speed:Float = 200;
+	public var button:Button;
+	public var id:Int;
 
-	public function new(?X:Float = 0, ?Y:Float = 0) {
+	var _upKey:FlxKey;
+	var _downKey:FlxKey;
+	var _leftKey:FlxKey;
+	var _rightKey:FlxKey;
+
+	public function new(?X:Float = 0, ?Y:Float = 0, id:Int) {
 		super(X, Y);
+		this.id = id;
 
-		loadGraphic(AssetPaths.player_1__png);
+		loadGraphic(id == 1 ? AssetPaths.player_1__png : AssetPaths.player_2__png);
+
+		if (id == 1) {
+			_upKey = UP;
+			_downKey = DOWN;
+			_leftKey = LEFT;
+			_rightKey = RIGHT;
+		} else {
+			_upKey = W;
+			_downKey = S;
+			_leftKey = A;
+			_rightKey = D;
+		}
 
 		drag.x = drag.y = 1600;
 	}
@@ -19,13 +39,13 @@ class Player extends FlxSprite {
 	function movement():Void {
 		var input = new FlxVector();
 
-		if (FlxG.keys.anyPressed([UP, W])) // Up
+		if (FlxG.keys.anyPressed([_upKey]))
 			input.y -= 1;
-		if (FlxG.keys.anyPressed([DOWN, S])) // Down
+		if (FlxG.keys.anyPressed([_downKey]))
 			input.y += 1;
-		if (FlxG.keys.anyPressed([LEFT, A])) // Left
+		if (FlxG.keys.anyPressed([_leftKey]))
 			input.x -= 1;
-		if (FlxG.keys.anyPressed([RIGHT, D])) // Right
+		if (FlxG.keys.anyPressed([_rightKey]))
 			input.x += 1;
 
 		if (input.lengthSquared > 0) {
@@ -39,6 +59,20 @@ class Player extends FlxSprite {
 
 	override public function update(elapsed:Float):Void {
 		movement();
+
+		if (button != null && !FlxG.overlap(button))
+			offButton();
+
 		super.update(elapsed);
+	}
+
+	public function touchButton(b:Button):Void {
+		button = b;
+		button.isPressed = true;
+	}
+
+	public function offButton():Void {
+		button.isPressed = false;
+		button = null;
 	}
 }
