@@ -1,9 +1,11 @@
 package;
 
+import flixel.FlxObject;
+import flixel.tile.FlxTilemap;
+import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.util.FlxColor;
 import flixel.FlxState;
 
 class PlayState extends FlxState {
@@ -11,8 +13,16 @@ class PlayState extends FlxState {
 	var button:Button;
 	var block:FlxSprite;
 
+	var map:FlxOgmo3Loader;
+	var walls:FlxTilemap;
+
 	override public function create():Void {
-		bgColor = FlxColor.GRAY;
+		bgColor = 0xff2d2d2d;
+
+		map = new FlxOgmo3Loader("assets/data/no_no_solo.ogmo", "assets/data/level_1.json");
+		walls = map.loadTilemap("assets/images/tiles.png", "walls");
+		walls.setTileProperties(1, FlxObject.ANY);
+		add(walls);
 
 		block = new FlxSprite(70, 50, "assets/images/block.png");
 		block.immovable = true;
@@ -23,9 +33,15 @@ class PlayState extends FlxState {
 		button.centerOffsets(false);
 		add(button);
 
-		players.add(new Player(50, 50, 1));
-		players.add(new Player(80, 80, 2));
 		add(players);
+
+		map.loadEntities(data -> {
+			if (data.name == "player_1") {
+				players.add(new Player(data.x, data.y, 1));
+			} else if(data.name == "player_2") {
+				players.add(new Player(data.x, data.y, 2));
+			}
+		});
 
 		super.create();
 	}
@@ -33,6 +49,7 @@ class PlayState extends FlxState {
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
+		FlxG.collide(players, walls);
 		FlxG.collide(players, block);
 
 		FlxG.overlap(players, button, (p, b) -> p.touchButton(b));
