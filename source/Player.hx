@@ -21,6 +21,9 @@ class Player extends FlxSprite {
 
 		loadGraphic("assets/images/player_" + id + ".png");
 
+		setSize(12, 12);
+		centerOffsets(true);
+
 		if (id == 1) {
 			upKey = UP;
 			downKey = DOWN;
