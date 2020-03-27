@@ -6,12 +6,12 @@ class Button extends FlxSprite {
 	public var isPressed:Bool = false;
 
 	public function new(X:Float, Y:Float, ?block:FlxSprite) {
-		super(X, Y);
+		super(X, Y, "assets/images/button.png");
 		this.block = block;
 
-		loadGraphic("assets/images/button.png");
-
-		flixel.FlxG.watch.add(this, "isPressed");
+		setSize(8, 8);
+		x += 4;
+		y += 4;
 	}
 
 	override public function update(elapsed:Float):Void {

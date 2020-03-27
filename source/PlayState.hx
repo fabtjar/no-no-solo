@@ -28,8 +28,7 @@ class PlayState extends FlxState {
 		block.immovable = true;
 		add(block);
 
-		button = new Button(50, 90, block);
-		button.setSize(8, 8);
+		button = new Button(16 * 8, 16 * 4, block);
 		button.centerOffsets(false);
 		add(button);
 
