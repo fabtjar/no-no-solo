@@ -14,13 +14,11 @@ class PlayState extends FlxState {
 	override public function create():Void {
 		bgColor = FlxColor.GRAY;
 
-		block = new FlxSprite(70, 50);
-		block.loadGraphic(AssetPaths.block__png);
+		block = new FlxSprite(70, 50, "assets/images/block.png");
 		block.immovable = true;
 		add(block);
 
 		button = new Button(50, 90, block);
-		button.loadGraphic(AssetPaths.button__png);
 		button.setSize(8, 8);
 		button.centerOffsets(false);
 		add(button);

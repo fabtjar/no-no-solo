@@ -9,7 +9,7 @@ class Button extends FlxSprite {
 		super(X, Y);
 		this.block = block;
 
-		loadGraphic(AssetPaths.block__png);
+		loadGraphic("assets/images/button.png");
 
 		flixel.FlxG.watch.add(this, "isPressed");
 	}

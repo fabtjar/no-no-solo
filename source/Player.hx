@@ -19,7 +19,7 @@ class Player extends FlxSprite {
 		super(X, Y);
 		this.id = id;
 
-		loadGraphic(id == 1 ? AssetPaths.player_1__png : AssetPaths.player_2__png);
+		loadGraphic("assets/images/player_" + id + ".png");
 
 		if (id == 1) {
 			upKey = UP;
