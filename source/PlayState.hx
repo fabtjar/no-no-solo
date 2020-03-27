@@ -9,9 +9,9 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 
 class PlayState extends FlxState {
-	var players = new FlxTypedGroup<Player>(2);
-	var button:Button;
-	var block:FlxSprite;
+	var players:FlxTypedGroup<Player>;
+	var buttons:FlxTypedGroup<Button>;
+	var blocks:FlxTypedGroup<FlxSprite>;
 
 	var map:FlxOgmo3Loader;
 	var walls:FlxTilemap;
@@ -24,14 +24,16 @@ class PlayState extends FlxState {
 		walls.setTileProperties(1, FlxObject.ANY);
 		add(walls);
 
-		block = new FlxSprite(70, 50, "assets/images/block.png");
-		block.immovable = true;
-		add(block);
+		blocks = new FlxTypedGroup<FlxSprite>();
+		blocks.add(new FlxSprite(16 * 15, 16 * 2, "assets/images/block.png"));
+		blocks.forEach(b -> b.immovable = true);
+		add(blocks);
 
-		button = new Button(16 * 8, 16 * 4, block);
-		button.centerOffsets(false);
-		add(button);
+		buttons = new FlxTypedGroup<Button>();
+		buttons.add(new Button(16 * 8, 16 * 2, blocks.getFirstAlive()));
+		add(buttons);
 
+		players = new FlxTypedGroup<Player>(2);
 		add(players);
 
 		map.loadEntities(data -> {
@@ -49,8 +51,8 @@ class PlayState extends FlxState {
 		super.update(elapsed);
 
 		FlxG.collide(players, walls);
-		FlxG.collide(players, block);
+		FlxG.collide(players, blocks);
 
-		FlxG.overlap(players, button, (p, b) -> p.touchButton(b));
+		FlxG.overlap(players, buttons, (p, b) -> p.touchButton(b));
 	}
 }

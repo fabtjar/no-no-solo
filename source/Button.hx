@@ -10,6 +10,7 @@ class Button extends FlxSprite {
 		this.block = block;
 
 		setSize(8, 8);
+		offset.set(4, 4);
 		x += 4;
 		y += 4;
 	}
