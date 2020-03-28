@@ -1,6 +1,6 @@
 package;
 
-import haxe.Timer;
+import flixel.util.FlxTimer;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.math.FlxPoint;
@@ -108,11 +108,7 @@ class PlayState extends FlxState {
 				winText.screenCenter();
 				add(winText);
 
-				var timer = new Timer(2000);
-				timer.run = () -> {
-					FlxG.switchState(new PlayState());
-					timer.stop();
-				}
+				new FlxTimer().start(2, _ -> FlxG.switchState(new PlayState()));
 			});
 		}
 	}
