@@ -18,17 +18,17 @@ class Player extends FlxSprite {
 	};
 
 	var canMove = true;
-	var isSpaceFree:(FlxSprite, Float, Float) -> Bool;
 
+	var state:PlayState;
 	var upKey:FlxKey;
 	var downKey:FlxKey;
 	var leftKey:FlxKey;
 	var rightKey:FlxKey;
 
-	public function new(?X:Float = 0, ?Y:Float = 0, id:Int, isSpaceFree:(FlxSprite, Float, Float) -> Bool) {
+	public function new(state:PlayState, ?X:Float = 0, ?Y:Float = 0, id:Int) {
 		super(X, Y, "assets/images/player_" + id + ".png");
 		this.id = id;
-		this.isSpaceFree = isSpaceFree;
+		this.state = state;
 
 		if (id == 1) {
 			upKey = UP;
@@ -63,7 +63,14 @@ class Player extends FlxSprite {
 				input.y = 0;
 
 			var newPos = {x: x + input.x * 16, y: y + input.y * 16};
-			if (isSpaceFree(this, newPos.x, newPos.y)) {
+
+			if (button != null)
+				offButton();
+			button = state.getOverlappingButton(this, newPos.x, newPos.y);
+			if (button != null)
+				touchButton();
+
+			if (state.isOverlappingSolid(this, newPos.x, newPos.y)) {
 				canMove = false;
 				var options = {ease: FlxEase.quadOut, onComplete: moveFinished};
 				FlxTween.tween(this, newPos, .1, options);
@@ -79,17 +86,13 @@ class Player extends FlxSprite {
 		if (canMove)
 			movement();
 
-		if (button != null && !FlxG.overlap(button))
-			offButton();
-
 		if (levelWin)
 			angularVelocity = 400 * (this.id == 1 ? -1 : 1);
 
 		super.update(elapsed);
 	}
 
-	public function touchButton(b:Button):Void {
-		button = b;
+	public function touchButton():Void {
 		button.isPressed = true;
 	}
 

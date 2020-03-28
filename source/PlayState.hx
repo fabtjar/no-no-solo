@@ -45,8 +45,8 @@ class PlayState extends FlxState {
 
 		map.loadEntities(data -> {
 			switch (data.name) {
-				case "player_1": players.add(new Player(data.x, data.y, 1, isSpaceFree));
-				case "player_2": players.add(new Player(data.x, data.y, 2, isSpaceFree));
+				case "player_1": players.add(new Player(this, data.x, data.y, 1));
+				case "player_2": players.add(new Player(this, data.x, data.y, 2));
 				case "button": buttons.add(new Button(data.x, data.y));
 				case "block":
 					var block = new Block(data.x, data.y);
@@ -88,18 +88,24 @@ class PlayState extends FlxState {
 		}
 	}
 
-	function isSpaceFree(object:FlxSprite, x:Float, y:Float):Bool {
+	public function isOverlappingSolid(object:FlxSprite, x:Float, y:Float):Bool {
 		var solids = new FlxGroup();
 		solids.add(walls);
 		blocks.forEach(b -> if (b.visible) solids.add(b));
-
 		return !object.overlapsAt(x, y, solids);
+	}
+
+	public function getOverlappingButton(object:FlxSprite, x:Float, y:Float):Button {
+		if (object.overlapsAt(x, y, buttons)) {
+			var button:Button;
+			buttons.forEach(b -> if (b.x == x && b.y == y) button = b);
+			return button;
+		}
+		return null;
 	}
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
-
-		FlxG.overlap(players, buttons, (p, b) -> p.touchButton(b));
 
 		if (!levelWin) {
 			FlxG.overlap(players, players, (a, b) -> {
