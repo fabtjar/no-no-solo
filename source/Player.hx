@@ -1,34 +1,19 @@
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
 import flixel.FlxG;
-import flixel.FlxSprite;
 
-class Player extends FlxSprite {
-	public var speed:Float = 200;
-	public var button:Button;
+class Player extends Moveable {
 	public var id:Int;
 	public var levelWin = false;
-	public var freeSpaces = {
-		up: false,
-		down: false,
-		left: false,
-		right: false
-	};
 
-	var canMove = true;
-
-	var state:PlayState;
 	var upKey:FlxKey;
 	var downKey:FlxKey;
 	var leftKey:FlxKey;
 	var rightKey:FlxKey;
 
-	public function new(state:PlayState, ?X:Float = 0, ?Y:Float = 0, id:Int) {
-		super(X, Y, "assets/images/player_" + id + ".png");
+	public function new(state:PlayState, id:Int, x:Float = 0, y:Float = 0) {
+		super(state, x, y, "assets/images/player_" + id + ".png");
 		this.id = id;
-		this.state = state;
 
 		if (id == 1) {
 			upKey = UP;
@@ -41,12 +26,9 @@ class Player extends FlxSprite {
 			leftKey = A;
 			rightKey = D;
 		}
-
-		drag.x = drag.y = 1600;
-		FlxG.watch.add(this, "freeSpaces");
 	}
 
-	function movement():Void {
+	function getInput():FlxPoint {
 		var input = new FlxPoint();
 
 		if (FlxG.keys.anyPressed([upKey]))
@@ -58,46 +40,26 @@ class Player extends FlxSprite {
 		if (FlxG.keys.anyPressed([rightKey]))
 			input.x += 1;
 
-		if (input.x != 0 || input.y != 0) {
-			if (input.x != 0)
-				input.y = 0;
-
-			var newPos = {x: x + input.x * 16, y: y + input.y * 16};
-
-			if (button != null)
-				offButton();
-			button = state.getOverlappingButtonAt(this, newPos.x, newPos.y);
-			if (button != null)
-				touchButton();
-
-			if (state.isOverlappingSolidAt(this, newPos.x, newPos.y)) {
-				canMove = false;
-				var options = {ease: FlxEase.quadOut, onComplete: moveFinished};
-				FlxTween.tween(this, newPos, .1, options);
-			}
-		}
+		return input;
 	}
 
-	function moveFinished(_) {
-		canMove = true;
+	function getDirection(input:FlxPoint):FlxPoint {
+		if (input.x != 0)
+			input.y = 0;
+		return input;
 	}
 
 	override public function update(elapsed:Float):Void {
-		if (canMove)
-			movement();
+		var input = getInput();
+
+		if (input.x != 0 || input.y != 0) {
+			var dir = getDirection(input);
+			move(dir);
+		}
 
 		if (levelWin)
 			angularVelocity = 400 * (this.id == 1 ? -1 : 1);
 
 		super.update(elapsed);
-	}
-
-	public function touchButton():Void {
-		button.isPressed = true;
-	}
-
-	public function offButton():Void {
-		button.isPressed = false;
-		button = null;
 	}
 }

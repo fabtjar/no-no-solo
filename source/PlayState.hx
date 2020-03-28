@@ -45,8 +45,8 @@ class PlayState extends FlxState {
 
 		map.loadEntities(data -> {
 			switch (data.name) {
-				case "player_1": players.add(new Player(this, data.x, data.y, 1));
-				case "player_2": players.add(new Player(this, data.x, data.y, 2));
+				case "player_1": players.add(new Player(this, 1, data.x, data.y));
+				case "player_2": players.add(new Player(this, 2, data.x, data.y));
 				case "button": buttons.add(new Button(data.x, data.y));
 				case "block":
 					var block = new Block(data.x, data.y);
@@ -88,11 +88,11 @@ class PlayState extends FlxState {
 		}
 	}
 
-	public function isOverlappingSolidAt(object:FlxSprite, x:Float, y:Float):Bool {
+	public function isOverlappingSolidAt(obj:Moveable, pos:FlxPoint):Bool {
 		var solids = new FlxGroup();
 		solids.add(walls);
 		blocks.forEach(b -> if (b.visible) solids.add(b));
-		return !object.overlapsAt(x, y, solids);
+		return !obj.overlapsAt(pos.x, pos.y, solids);
 	}
 
 	public function getOverlappingButtonAt(object:FlxSprite, x:Float, y:Float):Button {
@@ -106,6 +106,8 @@ class PlayState extends FlxState {
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
+
+		FlxG.overlap(players, buttons, (obj, button) -> button.pressed(obj));
 
 		if (!levelWin) {
 			FlxG.overlap(players, players, (a, b) -> {
