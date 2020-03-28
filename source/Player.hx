@@ -1,6 +1,6 @@
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
 import flixel.input.keyboard.FlxKey;
-import flixel.FlxObject;
-import flixel.math.FlxVector;
 import flixel.math.FlxPoint;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -10,20 +10,25 @@ class Player extends FlxSprite {
 	public var button:Button;
 	public var id:Int;
 	public var levelWin = false;
+	public var freeSpaces = {
+		up: false,
+		down: false,
+		left: false,
+		right: false
+	};
+
+	var canMove = true;
+	var isSpaceFree:(FlxSprite, Float, Float) -> Bool;
 
 	var upKey:FlxKey;
 	var downKey:FlxKey;
 	var leftKey:FlxKey;
 	var rightKey:FlxKey;
 
-	public function new(?X:Float = 0, ?Y:Float = 0, id:Int) {
-		super(X, Y);
+	public function new(?X:Float = 0, ?Y:Float = 0, id:Int, isSpaceFree:(FlxSprite, Float, Float) -> Bool) {
+		super(X, Y, "assets/images/player_" + id + ".png");
 		this.id = id;
-
-		loadGraphic("assets/images/player_" + id + ".png");
-
-		setSize(12, 12);
-		centerOffsets(true);
+		this.isSpaceFree = isSpaceFree;
 
 		if (id == 1) {
 			upKey = UP;
@@ -38,10 +43,11 @@ class Player extends FlxSprite {
 		}
 
 		drag.x = drag.y = 1600;
+		FlxG.watch.add(this, "freeSpaces");
 	}
 
 	function movement():Void {
-		var input = new FlxVector();
+		var input = new FlxPoint();
 
 		if (FlxG.keys.anyPressed([upKey]))
 			input.y -= 1;
@@ -52,17 +58,26 @@ class Player extends FlxSprite {
 		if (FlxG.keys.anyPressed([rightKey]))
 			input.x += 1;
 
-		if (input.lengthSquared > 0) {
-			velocity.set(speed, 0);
-			velocity.rotate(FlxPoint.weak(0, 0), input.degrees);
-
+		if (input.x != 0 || input.y != 0) {
 			if (input.x != 0)
-				facing = input.x > 0 ? FlxObject.RIGHT : FlxObject.LEFT;
+				input.y = 0;
+
+			var newPos = {x: x + input.x * 16, y: y + input.y * 16};
+			if (isSpaceFree(this, newPos.x, newPos.y)) {
+				canMove = false;
+				var options = {ease: FlxEase.quadOut, onComplete: moveFinished};
+				FlxTween.tween(this, newPos, .1, options);
+			}
 		}
 	}
 
+	function moveFinished(_) {
+		canMove = true;
+	}
+
 	override public function update(elapsed:Float):Void {
-		movement();
+		if (canMove)
+			movement();
 
 		if (button != null && !FlxG.overlap(button))
 			offButton();

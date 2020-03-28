@@ -1,5 +1,7 @@
 package;
 
+import flixel.group.FlxGroup;
+import flixel.FlxSprite;
 import flixel.util.FlxTimer;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
@@ -43,8 +45,8 @@ class PlayState extends FlxState {
 
 		map.loadEntities(data -> {
 			switch (data.name) {
-				case "player_1": players.add(new Player(data.x, data.y, 1));
-				case "player_2": players.add(new Player(data.x, data.y, 2));
+				case "player_1": players.add(new Player(data.x, data.y, 1, isSpaceFree));
+				case "player_2": players.add(new Player(data.x, data.y, 2, isSpaceFree));
 				case "button": buttons.add(new Button(data.x, data.y));
 				case "block":
 					var block = new Block(data.x, data.y);
@@ -86,11 +88,16 @@ class PlayState extends FlxState {
 		}
 	}
 
+	function isSpaceFree(object:FlxSprite, x:Float, y:Float):Bool {
+		var solids = new FlxGroup();
+		solids.add(walls);
+		blocks.forEach(b -> if (b.visible) solids.add(b));
+
+		return !object.overlapsAt(x, y, solids);
+	}
+
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
-
-		FlxG.collide(players, walls);
-		FlxG.collide(players, blocks);
 
 		FlxG.overlap(players, buttons, (p, b) -> p.touchButton(b));
 
