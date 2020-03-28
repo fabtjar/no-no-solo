@@ -7,7 +7,8 @@ class Moveable extends FlxSprite {
 	var state:PlayState;
 	var isMoving = false;
 	var moveDur = .1;
-	var moveDist = 16;
+    var moveDist = 16;
+    var canPush = false;
 
 	public function new(state:PlayState, x:Float = 0, y:Float = 0, imageLocation:String) {
 		super(x, y, imageLocation);
@@ -18,16 +19,17 @@ class Moveable extends FlxSprite {
 		if (isMoving)
 			return false;
 
-		return state.isOverlappingSolidAt(this, getMovedPos(direction));
+		return state.isMoveableTo(this, direction, moveDist, canPush);
 	}
 
-	function move(direction:FlxPoint):Void {
+	public function move(direction:FlxPoint):Void {
 		if (canMove(direction)) {
 			isMoving = true;
 			var moveTo = getMovedPos(direction);
 			var tweenValues = {x: moveTo.x, y: moveTo.y};
 			var tweenOptions = {ease: FlxEase.quadOut, onComplete: moveFinished};
-			FlxTween.tween(this, tweenValues, moveDur, tweenOptions);
+            FlxTween.tween(this, tweenValues, moveDur, tweenOptions);
+            state.pushBox(moveTo, direction);
 		}
 	}
 

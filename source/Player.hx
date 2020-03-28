@@ -26,6 +26,8 @@ class Player extends Moveable {
 			leftKey = A;
 			rightKey = D;
 		}
+
+		canPush = true;
 	}
 
 	function getInput():FlxPoint {

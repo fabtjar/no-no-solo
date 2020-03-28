@@ -14,13 +14,16 @@ import flixel.FlxG;
 import flixel.FlxState;
 
 class PlayState extends FlxState {
-	var players:FlxTypedGroup<Player>;
 	var buttons:FlxTypedGroup<Button>;
 	var blocks:FlxTypedGroup<Block>;
+	var moveables:FlxTypedGroup<Moveable>;
 	var levelWin = false;
 
 	var map:FlxOgmo3Loader;
 	var walls:FlxTilemap;
+
+	var player1:Player;
+	var player2:Player;
 
 	override public function create():Void {
 		bgColor = 0xff2d2d2d;
@@ -38,20 +41,25 @@ class PlayState extends FlxState {
 		buttons = new FlxTypedGroup<Button>();
 		add(buttons);
 
-		players = new FlxTypedGroup<Player>(2);
-		add(players);
+		moveables = new FlxTypedGroup<Moveable>();
+		add(moveables);
 
 		var blockNodes = new Map<Block, Array<FlxPoint>>();
 
 		map.loadEntities(data -> {
 			switch (data.name) {
-				case "player_1": players.add(new Player(this, 1, data.x, data.y));
-				case "player_2": players.add(new Player(this, 2, data.x, data.y));
+				case "player_1":
+					player1 = new Player(this, 1, data.x, data.y);
+					moveables.add(player1);
+				case "player_2":
+					player2 = new Player(this, 2, data.x, data.y);
+					moveables.add(player2);
 				case "button": buttons.add(new Button(data.x, data.y));
 				case "block":
 					var block = new Block(data.x, data.y);
 					blocks.add(block);
 					blockNodes[block] = convertNodeToPoints(data.nodes);
+				case "box": moveables.add(new Moveable(this, data.x, data.y, "assets/images/box.png"));
 				case _:
 			}
 		});
@@ -88,11 +96,22 @@ class PlayState extends FlxState {
 		}
 	}
 
-	public function isOverlappingSolidAt(obj:Moveable, pos:FlxPoint):Bool {
+	public function isMoveableTo(obj:Moveable, dir:FlxPoint, dist:Float, canPush:Bool = false):Bool {
 		var solids = new FlxGroup();
 		solids.add(walls);
 		blocks.forEach(b -> if (b.visible) solids.add(b));
-		return !obj.overlapsAt(pos.x, pos.y, solids);
+
+		if (canPush)
+			moveables.forEach(b -> if (!isMoveableTo(b, dir, dist)) solids.add(b));
+		else
+			solids.add(moveables);
+
+		var newPos = new FlxPoint(obj.x + dir.x * dist, obj.y + dir.y * dist);
+		return !obj.overlapsAt(newPos.x, newPos.y, solids);
+	}
+
+	public function pushBox(pos:FlxPoint, dir:FlxPoint):Void {
+		moveables.forEach(b -> if (b.x == pos.x && b.y == pos.y) b.move(dir));
 	}
 
 	public function getOverlappingButtonAt(object:FlxSprite, x:Float, y:Float):Button {
@@ -104,27 +123,30 @@ class PlayState extends FlxState {
 		return null;
 	}
 
+	function checkLevelComplete():Void {
+		if (player1.getPosition().distanceTo(player2.getPosition()) <= 16) {
+			levelWin = true;
+			player1.levelWin = true;
+			player2.levelWin = true;
+
+			var winText = new FlxText(0, 0, "Level\nComplete", 48);
+			winText.alignment = FlxTextAlign.CENTER;
+			winText.borderColor = FlxColor.BLACK;
+			winText.borderSize = 2;
+			winText.borderStyle = FlxTextBorderStyle.OUTLINE;
+			winText.screenCenter();
+			add(winText);
+
+			new FlxTimer().start(2, _ -> FlxG.switchState(new PlayState()));
+		}
+	}
+
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
-		FlxG.overlap(players, buttons, (obj, button) -> button.pressed(obj));
+		FlxG.overlap(moveables, buttons, (obj, button) -> button.pressed(obj));
 
-		if (!levelWin) {
-			FlxG.overlap(players, players, (a, b) -> {
-				levelWin = true;
-				a.levelWin = true;
-				b.levelWin = true;
-
-				var winText = new FlxText(0, 0, "Level\nComplete", 48);
-				winText.alignment = FlxTextAlign.CENTER;
-				winText.borderColor = FlxColor.BLACK;
-				winText.borderSize = 2;
-				winText.borderStyle = FlxTextBorderStyle.OUTLINE;
-				winText.screenCenter();
-				add(winText);
-
-				new FlxTimer().start(2, _ -> FlxG.switchState(new PlayState()));
-			});
-		}
+		if (!levelWin)
+			checkLevelComplete();
 	}
 }
