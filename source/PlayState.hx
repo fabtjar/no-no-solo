@@ -88,14 +88,14 @@ class PlayState extends FlxState {
 		}
 	}
 
-	public function isOverlappingSolid(object:FlxSprite, x:Float, y:Float):Bool {
+	public function isOverlappingSolidAt(object:FlxSprite, x:Float, y:Float):Bool {
 		var solids = new FlxGroup();
 		solids.add(walls);
 		blocks.forEach(b -> if (b.visible) solids.add(b));
 		return !object.overlapsAt(x, y, solids);
 	}
 
-	public function getOverlappingButton(object:FlxSprite, x:Float, y:Float):Button {
+	public function getOverlappingButtonAt(object:FlxSprite, x:Float, y:Float):Button {
 		if (object.overlapsAt(x, y, buttons)) {
 			var button:Button;
 			buttons.forEach(b -> if (b.x == x && b.y == y) button = b);

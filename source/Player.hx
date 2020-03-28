@@ -66,11 +66,11 @@ class Player extends FlxSprite {
 
 			if (button != null)
 				offButton();
-			button = state.getOverlappingButton(this, newPos.x, newPos.y);
+			button = state.getOverlappingButtonAt(this, newPos.x, newPos.y);
 			if (button != null)
 				touchButton();
 
-			if (state.isOverlappingSolid(this, newPos.x, newPos.y)) {
+			if (state.isOverlappingSolidAt(this, newPos.x, newPos.y)) {
 				canMove = false;
 				var options = {ease: FlxEase.quadOut, onComplete: moveFinished};
 				FlxTween.tween(this, newPos, .1, options);
