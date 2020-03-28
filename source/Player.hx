@@ -9,6 +9,7 @@ class Player extends FlxSprite {
 	public var speed:Float = 200;
 	public var button:Button;
 	public var id:Int;
+	public var levelWin = false;
 
 	var upKey:FlxKey;
 	var downKey:FlxKey;
@@ -65,6 +66,9 @@ class Player extends FlxSprite {
 
 		if (button != null && !FlxG.overlap(button))
 			offButton();
+
+		if (levelWin)
+			angularVelocity = 400 * (this.id == 1 ? -1 : 1);
 
 		super.update(elapsed);
 	}
