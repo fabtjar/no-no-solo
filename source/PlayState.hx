@@ -27,6 +27,7 @@ class PlayState extends FlxState {
 	var player1:Player;
 	var player2:Player;
 
+	var levelNum:Int;
 	var levelTitles = [
 		"simple_boxes",
 		"simple_same_buttons",
@@ -35,12 +36,21 @@ class PlayState extends FlxState {
 		"two_small_islands",
 	];
 
+	public function new(levelNum:Int = 1) {
+		super();
+
+		// Avoid level out of bounds
+		if (levelNum > levelTitles.length)
+			levelNum = 1;
+
+		this.levelNum = levelNum;
+	}
+
 	override public function create():Void {
 		bgColor = 0xff2d2d2d;
 
 		FlxG.camera.flash();
 
-		var levelNum = 5;
 		var currentLevel = levelTitles[levelNum - 1];
 
 		map = new FlxOgmo3Loader("assets/data/no_no_solo.ogmo", "assets/data/" + currentLevel + ".json");
@@ -64,6 +74,12 @@ class PlayState extends FlxState {
 		add(moveables);
 
 		loadObjectsFromTiles();
+
+		var levelText = new FlxText(0, 0, "Level " + levelNum);
+		levelText.borderColor = FlxColor.BLACK;
+		levelText.borderSize = 1;
+		levelText.borderStyle = FlxTextBorderStyle.OUTLINE;
+		add(levelText);
 
 		super.create();
 	}
@@ -149,7 +165,7 @@ class PlayState extends FlxState {
 			winText.screenCenter();
 			add(winText);
 
-			new FlxTimer().start(2, _ -> FlxG.switchState(new PlayState()));
+			new FlxTimer().start(2, _ -> FlxG.switchState(new PlayState(levelNum + 1)));
 		}
 	}
 
