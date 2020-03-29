@@ -6,7 +6,6 @@ import flixel.util.FlxTimer;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
 import flixel.math.FlxPoint;
-import flixel.FlxObject;
 import flixel.tile.FlxTilemap;
 import flixel.addons.editors.ogmo.FlxOgmo3Loader;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -15,8 +14,10 @@ import flixel.FlxState;
 
 class PlayState extends FlxState {
 	var buttons:FlxTypedGroup<Button>;
+	var water:FlxTypedGroup<AnimatedSprite>;
 	var blocks:FlxTypedGroup<Block>;
 	var moveables:FlxTypedGroup<Moveable>;
+	var boxes:FlxTypedGroup<Box>;
 	var levelWin = false;
 
 	var map:FlxOgmo3Loader;
@@ -34,11 +35,17 @@ class PlayState extends FlxState {
 		tiles = map.loadTilemap("assets/images/tiles.png");
 		add(tiles);
 
+		water = new FlxTypedGroup<AnimatedSprite>();
+		add(water);
+
 		blocks = new FlxTypedGroup<Block>();
 		add(blocks);
 
 		buttons = new FlxTypedGroup<Button>();
 		add(buttons);
+
+		boxes = new FlxTypedGroup<Box>();
+		add(boxes);
 
 		moveables = new FlxTypedGroup<Moveable>();
 		add(moveables);
@@ -67,11 +74,15 @@ class PlayState extends FlxState {
 					player2 = new Player(this, 2, x, y);
 					moveables.add(player2);
 				case 4:
-					moveables.add(new Moveable(this, x, y, "assets/images/box.png"));
+					var box = new Box(this, x, y);
+					moveables.add(box);
+					boxes.add(box);
 				case 5:
 					buttons.add(new Button(x, y));
 				case 6:
 					blocks.add(new Block(x, y));
+				case 7:
+					water.add(new AnimatedSprite(x, y, "assets/images/water.png"));
 			}
 
 			// Remove the tile
@@ -85,6 +96,9 @@ class PlayState extends FlxState {
 
 		if (blocks.visible)
 			solids.add(blocks);
+
+		if (!obj.canGoInWater)
+			solids.add(water);
 
 		if (canPush)
 			moveables.forEach(b -> if (!isMoveableTo(b, dir, dist)) solids.add(b));
@@ -141,6 +155,14 @@ class PlayState extends FlxState {
 		super.update(elapsed);
 
 		blocks.visible = !isAnyButtonPressed();
+
+		FlxG.overlap(boxes, water, (b:Box, w:AnimatedSprite) -> {
+			if (!b.isMoving) {
+				moveables.remove(b);
+				boxes.remove(b);
+				water.remove(w);
+			}
+		});
 
 		if (!levelWin)
 			checkLevelComplete();

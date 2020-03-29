@@ -4,11 +4,13 @@ import flixel.math.FlxPoint;
 import flixel.FlxSprite;
 
 class Moveable extends FlxSprite {
+	public var canGoInWater = false;
+	public var isMoving = false;
+
 	var state:PlayState;
-	var isMoving = false;
 	var moveDur = .1;
-    var moveDist = 16;
-    var canPush = false;
+	var moveDist = 16;
+	var canPush = false;
 
 	public function new(state:PlayState, x:Float = 0, y:Float = 0, imageLocation:String) {
 		super(x, y, imageLocation);
@@ -28,8 +30,8 @@ class Moveable extends FlxSprite {
 			var moveTo = getMovedPos(direction);
 			var tweenValues = {x: moveTo.x, y: moveTo.y};
 			var tweenOptions = {ease: FlxEase.quadOut, onComplete: moveFinished};
-            FlxTween.tween(this, tweenValues, moveDur, tweenOptions);
-            state.pushBox(moveTo, direction);
+			FlxTween.tween(this, tweenValues, moveDur, tweenOptions);
+			state.pushBox(moveTo, direction);
 		}
 	}
 
