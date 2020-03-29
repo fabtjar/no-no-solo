@@ -27,12 +27,23 @@ class PlayState extends FlxState {
 	var player1:Player;
 	var player2:Player;
 
+	var levelTitles = [
+		"simple_boxes",
+		"simple_same_buttons",
+		"cant_go_on_water",
+		"water_one_box",
+		"two_small_islands",
+	];
+
 	override public function create():Void {
 		bgColor = 0xff2d2d2d;
 
 		FlxG.camera.flash();
 
-		map = new FlxOgmo3Loader("assets/data/no_no_solo.ogmo", "assets/data/level_1.json");
+		var levelNum = 5;
+		var currentLevel = levelTitles[levelNum - 1];
+
+		map = new FlxOgmo3Loader("assets/data/no_no_solo.ogmo", "assets/data/" + currentLevel + ".json");
 		tiles = map.loadTilemap("assets/images/tiles.png");
 		tiles.setTileProperties(8, FlxObject.NONE);
 		add(tiles);
