@@ -44,8 +44,6 @@ class PlayState extends FlxState {
 		moveables = new FlxTypedGroup<Moveable>();
 		add(moveables);
 
-		var blockNodes = new Map<Block, Array<FlxPoint>>();
-
 		map.loadEntities(data -> {
 			switch (data.name) {
 				case "player_1":
@@ -55,51 +53,21 @@ class PlayState extends FlxState {
 					player2 = new Player(this, 2, data.x, data.y);
 					moveables.add(player2);
 				case "button": buttons.add(new Button(data.x, data.y));
-				case "block":
-					var block = new Block(data.x, data.y);
-					blocks.add(block);
-					blockNodes[block] = convertNodeToPoints(data.nodes);
+				case "block": blocks.add(new Block(data.x, data.y));
 				case "box": moveables.add(new Moveable(this, data.x, data.y, "assets/images/box.png"));
 				case _:
 			}
 		});
 
-		setBlocksToButtons(blockNodes);
-
 		super.create();
-	}
-
-	function convertNodeToPoints(nodes:Array<{x:Float, y:Float}>):Array<FlxPoint> {
-		var points = new Array<FlxPoint>();
-
-		// Add 8 for middle of 16px grid
-		for (node in nodes)
-			points.push(new FlxPoint(node.x + 8, node.y + 8));
-
-		return points;
-	}
-
-	function setBlocksToButtons(blockNodes:Map<Block, Array<FlxPoint>>):Void {
-		/**
-			Set blocks to buttons.
-			Loop through button points on blocks to see if a button overlaps with it.
-			If it does set it to the button's block.
-		**/
-		for (block => buttonPoints in blockNodes) {
-			for (buttonPoint in buttonPoints) {
-				buttons.forEach(button -> {
-					if (button.overlapsPoint(buttonPoint)) {
-						button.block = block;
-					}
-				});
-			}
-		}
 	}
 
 	public function isMoveableTo(obj:Moveable, dir:FlxPoint, dist:Float, canPush:Bool = false):Bool {
 		var solids = new FlxGroup();
 		solids.add(walls);
-		blocks.forEach(b -> if (b.visible) solids.add(b));
+
+		if (blocks.visible)
+			solids.add(blocks);
 
 		if (canPush)
 			moveables.forEach(b -> if (!isMoveableTo(b, dir, dist)) solids.add(b));
@@ -141,10 +109,21 @@ class PlayState extends FlxState {
 		}
 	}
 
+	function isAnyButtonPressed():Bool {
+		var anyOverlaps:Bool = false;
+		moveables.forEach(obj -> {
+			if (obj.overlaps(buttons)) {
+				anyOverlaps = true;
+				return;
+			}
+		});
+		return anyOverlaps;
+	}
+
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
-		FlxG.overlap(moveables, buttons, (obj, button) -> button.pressed(obj));
+		blocks.visible = !isAnyButtonPressed();
 
 		if (!levelWin)
 			checkLevelComplete();
