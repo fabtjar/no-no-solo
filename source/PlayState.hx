@@ -20,7 +20,7 @@ class PlayState extends FlxState {
 	var levelWin = false;
 
 	var map:FlxOgmo3Loader;
-	var walls:FlxTilemap;
+	var tiles:FlxTilemap;
 
 	var player1:Player;
 	var player2:Player;
@@ -31,9 +31,8 @@ class PlayState extends FlxState {
 		FlxG.camera.flash();
 
 		map = new FlxOgmo3Loader("assets/data/no_no_solo.ogmo", "assets/data/level_1.json");
-		walls = map.loadTilemap("assets/images/tiles.png", "walls");
-		walls.setTileProperties(1, FlxObject.ANY);
-		add(walls);
+		tiles = map.loadTilemap("assets/images/tiles.png");
+		add(tiles);
 
 		blocks = new FlxTypedGroup<Block>();
 		add(blocks);
@@ -44,27 +43,45 @@ class PlayState extends FlxState {
 		moveables = new FlxTypedGroup<Moveable>();
 		add(moveables);
 
-		map.loadEntities(data -> {
-			switch (data.name) {
-				case "player_1":
-					player1 = new Player(this, 1, data.x, data.y);
-					moveables.add(player1);
-				case "player_2":
-					player2 = new Player(this, 2, data.x, data.y);
-					moveables.add(player2);
-				case "button": buttons.add(new Button(data.x, data.y));
-				case "block": blocks.add(new Block(data.x, data.y));
-				case "box": moveables.add(new Moveable(this, data.x, data.y, "assets/images/box.png"));
-				case _:
-			}
-		});
+		loadObjectsFromTiles();
 
 		super.create();
 	}
 
+	function loadObjectsFromTiles():Void {
+		for (i in 0...tiles.totalTiles) {
+			var tile = tiles.getTileByIndex(i);
+
+			// Ignore walls and empty spaces
+			if (tile <= 1)
+				continue;
+
+			var x = i % tiles.widthInTiles * 16;
+			var y = Math.floor(i / tiles.widthInTiles) * 16;
+
+			switch (tile) {
+				case 2:
+					player1 = new Player(this, 1, x, y);
+					moveables.add(player1);
+				case 3:
+					player2 = new Player(this, 2, x, y);
+					moveables.add(player2);
+				case 4:
+					moveables.add(new Moveable(this, x, y, "assets/images/box.png"));
+				case 5:
+					buttons.add(new Button(x, y));
+				case 6:
+					blocks.add(new Block(x, y));
+			}
+
+			// Remove the tile
+			tiles.setTileByIndex(i, 0);
+		}
+	}
+
 	public function isMoveableTo(obj:Moveable, dir:FlxPoint, dist:Float, canPush:Bool = false):Bool {
 		var solids = new FlxGroup();
-		solids.add(walls);
+		solids.add(tiles);
 
 		if (blocks.visible)
 			solids.add(blocks);
