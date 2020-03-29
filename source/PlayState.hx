@@ -193,6 +193,9 @@ class PlayState extends FlxState {
 			}
 		});
 
+		if (FlxG.keys.justReleased.R)
+			FlxG.resetState();
+
 		if (!levelWin)
 			checkLevelComplete();
 	}
