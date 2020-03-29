@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxObject;
 import flixel.group.FlxGroup;
 import flixel.FlxSprite;
 import flixel.util.FlxTimer;
@@ -33,6 +34,7 @@ class PlayState extends FlxState {
 
 		map = new FlxOgmo3Loader("assets/data/no_no_solo.ogmo", "assets/data/level_1.json");
 		tiles = map.loadTilemap("assets/images/tiles.png");
+		tiles.setTileProperties(8, FlxObject.NONE);
 		add(tiles);
 
 		water = new FlxTypedGroup<AnimatedSprite>();
@@ -86,7 +88,7 @@ class PlayState extends FlxState {
 			}
 
 			// Remove the tile
-			tiles.setTileByIndex(i, 0);
+			tiles.setTileByIndex(i, 8);
 		}
 	}
 
