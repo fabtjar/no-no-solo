@@ -1,11 +1,10 @@
 import flixel.FlxSprite;
 
 class Button extends FlxSprite {
-	public var block:FlxSprite;
+	public var colour:String;
 
-	var pressedBy:Array<Moveable>;
-
-	public function new(X:Float, Y:Float, ?block:FlxSprite) {
-		super(X, Y, "assets/images/button.png");
+	public function new(x:Float, y:Float, colour:String) {
+		super(x, y, "assets/images/" + colour + "_button.png");
+		this.colour = colour;
 	}
 }

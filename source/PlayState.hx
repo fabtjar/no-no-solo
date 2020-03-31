@@ -107,11 +107,23 @@ class PlayState extends FlxState {
 					moveables.add(box);
 					boxes.add(box);
 				case 5:
-					buttons.add(new Button(x, y));
+					buttons.add(new Button(x, y, "green"));
 				case 6:
-					blocks.add(new Block(x, y));
+					blocks.add(new Block(x, y, "green"));
 				case 7:
 					water.add(new AnimatedSprite(x, y, "assets/images/water.png"));
+				case 13:
+					buttons.add(new Button(x, y, "blue"));
+				case 14:
+					blocks.add(new Block(x, y, "blue"));
+				case 21:
+					buttons.add(new Button(x, y, "red"));
+				case 22:
+					blocks.add(new Block(x, y, "red"));
+				case 29:
+					buttons.add(new Button(x, y, "yellow"));
+				case 30:
+					blocks.add(new Block(x, y, "yellow"));
 			}
 
 			// Remove the tile
@@ -123,8 +135,7 @@ class PlayState extends FlxState {
 		var solids = new FlxGroup();
 		solids.add(tiles);
 
-		if (blocks.visible)
-			solids.add(blocks);
+		blocks.forEach(b -> if (b.visible) solids.add(b));
 
 		if (!obj.canGoInWater)
 			solids.add(water);
@@ -180,10 +191,26 @@ class PlayState extends FlxState {
 		return anyOverlaps;
 	}
 
+	function getPressedButtons():Map<String, Bool> {
+		var buttonsPress = ["green" => false, "blue" => false, "red" => false, "yellow" => false];
+		buttons.forEach(b -> {
+			if (b.overlaps(moveables))
+				buttonsPress[b.colour] = true;
+		});
+		return buttonsPress;
+	}
+
+	function changeBlocksVisibilty():Void {
+		var buttonsPressed = getPressedButtons();
+		blocks.forEach(b -> {
+			b.visible = !buttonsPressed[b.colour];
+		});
+	}
+
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
 
-		blocks.visible = !isAnyButtonPressed();
+		changeBlocksVisibilty();
 
 		FlxG.overlap(boxes, water, (b:Box, w:AnimatedSprite) -> {
 			if (!b.isMoving) {

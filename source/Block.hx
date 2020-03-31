@@ -1,8 +1,11 @@
 import flixel.FlxSprite;
 
 class Block extends FlxSprite {
-	public function new(X:Float, Y:Float) {
-		super(X, Y, "assets/images/block.png");
+	public var colour:String;
+
+	public function new(x:Float, y:Float, colour:String) {
+		super(x, y, "assets/images/" + colour + "_block.png");
 		immovable = true;
+		this.colour = colour;
 	}
 }
