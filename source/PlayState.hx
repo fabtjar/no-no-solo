@@ -224,7 +224,7 @@ class PlayState extends FlxState {
 		});
 
 		if (FlxG.keys.justReleased.R)
-			FlxG.resetState();
+			FlxG.switchState(new PlayState(levelNum));
 
 		if (!levelWin)
 			checkLevelComplete();
