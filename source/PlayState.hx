@@ -34,6 +34,8 @@ class PlayState extends FlxState {
 		"cant_go_on_water",
 		"water_one_box",
 		"two_small_islands",
+		"use_box_on_button",
+		"blocks_stopping_box_for_water",
 	];
 
 	public function new(levelNum:Int = 1) {
