@@ -78,6 +78,13 @@ class PlayState extends FlxState {
 
 		loadObjectsFromTiles();
 
+		// Add after other moveables to view on top
+		moveables.add(player1);
+		moveables.add(player2);
+
+		player1.setPicked(true);
+		player2.setPicked(false);
+
 		var levelText = new FlxText(0, 0, "Level " + levelNum);
 		levelText.borderColor = FlxColor.BLACK;
 		levelText.borderSize = 1;
@@ -101,10 +108,8 @@ class PlayState extends FlxState {
 			switch (tile) {
 				case 2:
 					player1 = new Player(this, 1, x, y);
-					moveables.add(player1);
 				case 3:
 					player2 = new Player(this, 2, x, y);
-					moveables.add(player2);
 				case 4:
 					var box = new Box(this, x, y);
 					moveables.add(box);
@@ -168,6 +173,10 @@ class PlayState extends FlxState {
 	function checkLevelComplete():Void {
 		if (player1.getPosition().distanceTo(player2.getPosition()) <= 16) {
 			levelWin = true;
+
+			player1.setPicked(true);
+			player2.setPicked(true);
+
 			player1.levelWin = true;
 			player2.levelWin = true;
 
@@ -212,6 +221,11 @@ class PlayState extends FlxState {
 
 	override public function update(elapsed:Float):Void {
 		super.update(elapsed);
+
+		if (FlxG.keys.justPressed.SPACE) {
+			player1.swapPicked();
+			player2.swapPicked();
+		}
 
 		changeBlocksVisibilty();
 
