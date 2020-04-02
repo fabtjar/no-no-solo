@@ -36,6 +36,7 @@ class PlayState extends FlxState {
 		"simple_same_buttons",
 		"cant_go_on_water",
 		"water_one_box",
+		"show_box_on_water",
 		"two_small_islands",
 		"use_box_on_button",
 		"blocks_stopping_box_for_water",
@@ -264,6 +265,12 @@ class PlayState extends FlxState {
 
 		if (FlxG.keys.justPressed.BACKSPACE)
 			undoMove();
+
+		// Auto win level
+		if (FlxG.keys.justPressed.END) {
+			player1.x = player2.x;
+			player1.y = player2.y;
+		}
 
 		if (!levelWin)
 			checkLevelComplete();
