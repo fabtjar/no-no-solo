@@ -1,3 +1,4 @@
+import flixel.tweens.misc.VarTween;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.math.FlxPoint;
@@ -10,6 +11,7 @@ class Moveable extends FlxSprite {
 	var state:PlayState;
 	var moveDur = .1;
 	var moveDist = 16;
+	var moveTween:VarTween;
 	var canPush = false;
 
 	public function new(state:PlayState, x:Float = 0, y:Float = 0, imageLocation:String) {
@@ -30,10 +32,16 @@ class Moveable extends FlxSprite {
 			var moveTo = getMovedPos(direction);
 			var tweenValues = {x: moveTo.x, y: moveTo.y};
 			var tweenOptions = {ease: FlxEase.quadOut, onComplete: moveFinished};
-			FlxTween.tween(this, tweenValues, moveDur, tweenOptions);
+			moveTween = FlxTween.tween(this, tweenValues, moveDur, tweenOptions);
 			state.move(this, getPosition(), canPush);
 			state.pushBox(moveTo, direction);
 		}
+	}
+
+	public function undoMove(lastPos:FlxPoint):Void {
+		moveTween.cancel();
+		isMoving = false;
+		setPosition(lastPos.x, lastPos.y);
 	}
 
 	function getMovedPos(direction:FlxPoint):FlxPoint {

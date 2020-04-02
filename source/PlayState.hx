@@ -177,7 +177,7 @@ class PlayState extends FlxState {
 	function undoMove():Void {
 		var lastMove = moves.pop();
 		if (lastMove != null) {
-			lastMove.obj.setPosition(lastMove.pos.x, lastMove.pos.y);
+			lastMove.obj.undoMove(lastMove.pos);
 			if (!lastMove.canPush)
 				undoMove();
 		}
