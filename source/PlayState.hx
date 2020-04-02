@@ -154,6 +154,10 @@ class PlayState extends FlxState {
 			solids.add(moveables);
 
 		var newPos = new FlxPoint(obj.x + dir.x * dist, obj.y + dir.y * dist);
+
+		if (newPos.x < 0 || newPos.x >= tiles.width || newPos.y < 0 || newPos.y >= tiles.height)
+			return false;
+
 		return !obj.overlapsAt(newPos.x, newPos.y, solids);
 	}
 
