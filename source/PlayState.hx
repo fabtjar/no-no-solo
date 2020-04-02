@@ -1,5 +1,6 @@
 package;
 
+import haxe.ds.GenericStack;
 import flixel.FlxObject;
 import flixel.group.FlxGroup;
 import flixel.FlxSprite;
@@ -27,6 +28,8 @@ class PlayState extends FlxState {
 	var player1:Player;
 	var player2:Player;
 
+	var moves:GenericStack<{obj:Moveable, pos:FlxPoint, canPush:Bool}>;
+
 	var levelNum:Int;
 	var levelTitles = [
 		"simple_boxes",
@@ -51,6 +54,8 @@ class PlayState extends FlxState {
 
 	override public function create():Void {
 		bgColor = 0xff2d2d2d;
+
+		moves = new GenericStack();
 
 		FlxG.camera.flash();
 
@@ -165,6 +170,19 @@ class PlayState extends FlxState {
 		moveables.forEach(b -> if (b.x == pos.x && b.y == pos.y) b.move(dir));
 	}
 
+	public function move(obj:Moveable, pos:FlxPoint, canPush:Bool):Void {
+		moves.add({obj: obj, pos: pos, canPush: canPush});
+	}
+
+	function undoMove():Void {
+		var lastMove = moves.pop();
+		if (lastMove != null) {
+			lastMove.obj.setPosition(lastMove.pos.x, lastMove.pos.y);
+			if (!lastMove.canPush)
+				undoMove();
+		}
+	}
+
 	public function getOverlappingButtonAt(object:FlxSprite, x:Float, y:Float):Button {
 		if (object.overlapsAt(x, y, buttons)) {
 			var button:Button;
@@ -243,6 +261,9 @@ class PlayState extends FlxState {
 
 		if (FlxG.keys.justReleased.R)
 			FlxG.switchState(new PlayState(levelNum));
+
+		if (FlxG.keys.justPressed.BACKSPACE)
+			undoMove();
 
 		if (!levelWin)
 			checkLevelComplete();

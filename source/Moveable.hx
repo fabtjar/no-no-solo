@@ -31,6 +31,7 @@ class Moveable extends FlxSprite {
 			var tweenValues = {x: moveTo.x, y: moveTo.y};
 			var tweenOptions = {ease: FlxEase.quadOut, onComplete: moveFinished};
 			FlxTween.tween(this, tweenValues, moveDur, tweenOptions);
+			state.move(this, getPosition(), canPush);
 			state.pushBox(moveTo, direction);
 		}
 	}
