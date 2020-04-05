@@ -13,27 +13,32 @@ class Moveable extends FlxSprite {
 	var moveDist = 16;
 	var moveTween:VarTween;
 	var canPush = false;
+	var direction:FlxPoint;
 
 	public function new(state:PlayState, x:Float = 0, y:Float = 0, imageLocation:String) {
 		super(x, y, imageLocation);
 		this.state = state;
 	}
 
-	function canMove(direction:FlxPoint):Bool {
+	function canMove(direction:FlxPoint, isOnIce = false):Bool {
 		if (isMoving)
 			return false;
 
-		return state.isMoveableTo(this, direction, moveDist, canPush);
+		return state.isMoveableTo(this, direction, moveDist, isOnIce ? false : canPush);
 	}
 
-	public function move(direction:FlxPoint):Void {
-		if (canMove(direction)) {
+	public function move(direction:FlxPoint, isOnIce = false):Void {
+		if (canMove(direction, isOnIce)) {
+			this.direction = direction;
 			isMoving = true;
 			var moveTo = getMovedPos(direction);
 			var tweenValues = {x: moveTo.x, y: moveTo.y};
 			var tweenOptions = {ease: FlxEase.quadOut, onComplete: moveFinished};
 			moveTween = FlxTween.tween(this, tweenValues, moveDur, tweenOptions);
-			state.move(this, getPosition(), canPush);
+
+			if (!isOnIce)
+				state.move(this, getPosition(), canPush);
+
 			state.pushBox(moveTo, direction);
 		}
 	}
@@ -50,5 +55,8 @@ class Moveable extends FlxSprite {
 
 	function moveFinished(_):Void {
 		isMoving = false;
+
+		if (state.isOnIce(getPosition()))
+			move(direction, true);
 	}
 }

@@ -32,15 +32,8 @@ class PlayState extends FlxState {
 
 	var levelNum:Int;
 	var levelTitles = [
-		"simple_boxes",
-		"simple_same_buttons",
-		"cant_go_on_water",
-		"water_one_box",
-		"show_box_on_water",
-		"two_small_islands",
-		"use_box_on_button",
-		"blocks_stopping_box_for_water",
-		"get_around_water_corners",
+		"simple_boxes", "simple_same_buttons", "cant_go_on_water", "water_one_box", "show_box_on_water", "two_small_islands", "use_box_on_button",
+		"blocks_stopping_box_for_water", "get_around_water_corners", "simple_ice_level",
 	];
 
 	public function new(levelNum:Int = 1) {
@@ -65,6 +58,7 @@ class PlayState extends FlxState {
 		map = new FlxOgmo3Loader("assets/data/no_no_solo.ogmo", "assets/data/" + currentLevel + ".json");
 		tiles = map.loadTilemap("assets/images/tiles.png");
 		tiles.setTileProperties(8, FlxObject.NONE);
+		tiles.setTileProperties(9, FlxObject.NONE);
 		add(tiles);
 
 		water = new FlxTypedGroup<AnimatedSprite>();
@@ -105,7 +99,7 @@ class PlayState extends FlxState {
 			var tile = tiles.getTileByIndex(i);
 
 			// Ignore walls and empty spaces
-			if (tile <= 1)
+			if (tile <= 1 || tile == 9)
 				continue;
 
 			var x = i % tiles.widthInTiles * 16;
@@ -169,6 +163,12 @@ class PlayState extends FlxState {
 
 	public function pushBox(pos:FlxPoint, dir:FlxPoint):Void {
 		moveables.forEach(b -> if (b.x == pos.x && b.y == pos.y) b.move(dir));
+	}
+
+	public function isOnIce(pos:FlxPoint):Bool {
+		var index = tiles.getTileIndexByCoords(pos);
+		var tile = tiles.getTileByIndex(index);
+		return tile == 9;
 	}
 
 	public function move(obj:Moveable, pos:FlxPoint, canPush:Bool):Void {
