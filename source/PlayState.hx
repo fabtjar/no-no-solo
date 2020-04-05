@@ -125,7 +125,7 @@ class PlayState extends FlxState {
 				case 6:
 					blocks.add(new Block(x, y, "green"));
 				case 7:
-					water.add(new AnimatedSprite(x, y, "assets/images/water.png"));
+					water.add(new AnimatedSprite(x, y, "assets/images/water.png", true));
 				case 13:
 					buttons.add(new Button(x, y, "blue"));
 				case 14:
@@ -178,6 +178,13 @@ class PlayState extends FlxState {
 	function undoMove():Void {
 		var lastMove = moves.pop();
 		if (lastMove != null) {
+			// If not visible it was a box in water so create it again and add a water
+			if (!lastMove.obj.visible) {
+				water.add(new AnimatedSprite(lastMove.obj.x, lastMove.obj.y, "assets/images/water.png"));
+				lastMove.obj.visible = true;
+				moveables.add(lastMove.obj);
+				boxes.add(cast(lastMove.obj, Box));
+			}
 			lastMove.obj.undoMove(lastMove.pos);
 			if (!lastMove.canPush)
 				undoMove();
@@ -253,10 +260,15 @@ class PlayState extends FlxState {
 		changeBlocksVisibilty();
 
 		FlxG.overlap(boxes, water, (b:Box, w:AnimatedSprite) -> {
+			// Removing is when it's not moving so it doesn't get removed instantly
 			if (!b.isMoving) {
 				moveables.remove(b);
 				boxes.remove(b);
 				water.remove(w);
+				w.destroy();
+
+				// Making box invisible is a cheap way to know it went into water while undoing
+				b.visible = false;
 			}
 		});
 
