@@ -36,7 +36,7 @@ class PlayState extends FlxState {
 		"blocks_stopping_box_for_water", "get_around_water_corners", "simple_ice_level", "use_walls_on_ice",
 	];
 
-	public function new(levelNum:Int = 10) {
+	public function new(levelNum:Int = 1) {
 		super();
 
 		// Avoid level out of bounds
