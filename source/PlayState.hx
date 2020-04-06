@@ -33,10 +33,10 @@ class PlayState extends FlxState {
 	var levelNum:Int;
 	var levelTitles = [
 		"simple_boxes", "simple_same_buttons", "cant_go_on_water", "water_one_box", "show_box_on_water", "two_small_islands", "use_box_on_button",
-		"blocks_stopping_box_for_water", "get_around_water_corners", "simple_ice_level",
+		"blocks_stopping_box_for_water", "get_around_water_corners", "simple_ice_level", "use_walls_on_ice",
 	];
 
-	public function new(levelNum:Int = 1) {
+	public function new(levelNum:Int = 10) {
 		super();
 
 		// Avoid level out of bounds
