@@ -38,11 +38,6 @@ class PlayState extends FlxState {
 
 	public function new(levelNum:Int = 1) {
 		super();
-
-		// Avoid level out of bounds
-		if (levelNum > levelTitles.length)
-			levelNum = 1;
-
 		this.levelNum = levelNum;
 	}
 
@@ -218,7 +213,15 @@ class PlayState extends FlxState {
 			winText.screenCenter();
 			add(winText);
 
-			new FlxTimer().start(2, _ -> FlxG.switchState(new PlayState(levelNum + 1)));
+			// Next level delay
+			new FlxTimer().start(2, _ -> {
+				levelNum += 1;
+				// Show end screen when out of levels
+				if (levelNum > levelTitles.length)
+					FlxG.switchState(new EndState());
+				else
+					FlxG.switchState(new PlayState(levelNum));
+			});
 		}
 	}
 
