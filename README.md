@@ -8,6 +8,8 @@ The game idea wasn't that interesting so I gave up on it early before exploring 
 
 It's not very optimised and there are bugs if moving objects move at the same time on ice.
 
+There are 11 levels.
+
 ## Controls
 * arrows - move
 * space - swap
